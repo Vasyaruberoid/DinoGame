@@ -1,70 +1,162 @@
-import React, { useState, useEffect } from "react";
-import { Dino } from "./Dino";
-import Obstacle from "./Obstacle";
+import { useState, useEffect, useRef } from "react";
+import dino from "../assets/dinosaur.png";
+import dinoJump from "../assets/Jump.png";
+import cactusImg from "../assets/cactus.png";
 
-const Game: React.FC = () => {
-  const [dinoY, setDinoY] = useState(100); // Начальная позиция динозаврика по Y
-  const [isJumping, setIsJumping] = useState(false);
-  const [obstacles, setObstacles] = useState<number[]>([]);
-  const [score, setScore] = useState(0);
+type GameProps = {
+  score: number;
+  maxScore: number;
+  onGameOver: (finalScore: number) => void;
+};
+
+export const Game = ({ score, maxScore, onGameOver }: GameProps) => {
+  const [dinoY, setDinoY] = useState<number>(0);
+  const [speed, setSpeed] = useState<number>(3);
+  const [cacti, setCacti] = useState<Array<number>>([]);
+  const [isJumping, setIsJumping] = useState<boolean>(false);
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const [currentScore, setCurrentScore] = useState<number>(score);
+
+  const gameAreaRef = useRef<HTMLDivElement>(null);
+
+  //
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.code === "Space" && !isJumping) {
+      setIsJumping(true);
+      setDinoY(30);
+
+      setTimeout(() => {
+        setDinoY(0);
+        setIsJumping(false);
+      }, 300);
+    }
+  };
 
   useEffect(() => {
-    const jumpHandler = (e: KeyboardEvent) => {
-      if (e.code === "Space" && !isJumping) {
-        setIsJumping(true);
-        setDinoY(50); // Высота прыжка
-        setTimeout(() => {
-          setIsJumping(false);
-          setDinoY(100); // Вернуться на землю
-        }, 300);
-      }
-    };
-
-    const gameLoop = setInterval(() => {
-      setObstacles((prev) => {
-        return prev
-          .map((obstacle) => obstacle - 5)
-          .filter((obstacle) => obstacle > -50); // Обновляем позицию препятствий
-      });
-
-      setScore((prev) => prev + 1); // Увеличиваем счет
-
-      // Проверка на столкновение с препятствием
-      obstacles.forEach((obstacle) => {
-        if (obstacle < 50 && obstacle > 0 && dinoY === 100) {
-          alert(`Game Over! Your score: ${score}`);
-          clearInterval(gameLoop);
-        }
-      });
-    }, 100);
-
-    window.addEventListener("keydown", jumpHandler);
-
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener("keydown", jumpHandler);
-      clearInterval(gameLoop);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isJumping, dinoY, obstacles, score]);
+  }, [isJumping]);
 
   useEffect(() => {
-    const obstacleGenerator = setInterval(() => {
-      setObstacles((prev) => [...prev, 300]);
-    }, 2000); // Генерация новых препятствий
+    const gameLoop = setInterval(() => {
+      if (gameOver) {
+        clearInterval(gameLoop);
+        onGameOver(currentScore);
+        return;
+      }
 
-    return () => clearInterval(obstacleGenerator);
-  }, []);
+      setCacti((prev) => {
+        const newCacti = prev.map((x) => x - speed); 
+        return newCacti.filter((x) => x > -50); 
+      });
+
+      if (currentScore > 0 && currentScore % 100 === 0) {
+        setSpeed((prev) => prev + 0.2); 
+      }
+
+ 
+      if (
+        dinoY === 0 &&
+        cacti.some((cactusPosition) => {
+  
+          const dinoLeft = 30;
+          const dinoRight = dinoLeft; 
+
+
+          const cactusLeft = cactusPosition;
+          const cactusRight = cactusLeft + 30;
+
+
+          const isHorizontalCollision =
+            dinoRight > cactusLeft && dinoLeft < cactusRight;
+
+          
+          const isVerticalCollision = dinoY === 0; 
+
+          return isHorizontalCollision && isVerticalCollision;
+        })
+      ) {
+        setGameOver(true); 
+      }
+    }, 1000 / 60);
+
+    return () => clearInterval(gameLoop);
+  }, [currentScore, speed, cacti, gameOver, dinoY]);
+
+
+  useEffect(() => {
+    const cactusInterval = setInterval(() => {
+      if (!gameOver) {
+        setCacti((prev) => [...prev, 200]);
+      }
+    }, 2000);
+
+    return () => clearInterval(cactusInterval);
+  }, [gameOver]);
+
+
+  useEffect(() => {
+    const scoreInterval = setInterval(() => {
+      if (!isJumping && !gameOver) {
+        setCurrentScore((prevScore) => prevScore + 1);
+      }
+    }, 1000); 
+
+    return () => clearInterval(scoreInterval);
+  }, [isJumping, gameOver]);
 
   return (
-    <div className="game-container">
-      <div className="sky">
-        <Dino y={dinoY} isJumping={isJumping} />
-        {obstacles.map((obstacle, index) => (
-          <Obstacle key={index} x={obstacle} />
-        ))}
+    <div
+      ref={gameAreaRef}
+      style={{
+        width: "600px",
+        height: "200px",
+        backgroundColor: "lightgray",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          width: "50px",
+          height: "50px",
+          backgroundImage: `url(${isJumping ? dinoJump : dino})`,
+          backgroundSize: "contain",
+          position: "absolute",
+          bottom: `${dinoY}px`,
+          left: "30px",
+          transition: "bottom 0.3s",
+        }}
+      />
+      {cacti.map((cactus, index) => (
+        <div
+          key={index}
+          style={{
+            width: "30px",
+            height: "50px",
+            backgroundImage: `url(${cactusImg})`, // Иконка кактуса
+            backgroundSize: "contain",
+            position: "absolute",
+            bottom: "0",
+            left: `${cactus}%`,
+          }}
+        />
+      ))}
+
+      <div
+        style={{
+          position: "absolute",
+          top: "10px",
+          right: "10px",
+          color: "black",
+          fontSize: "20px",
+        }}
+      >
+        <div>Очки: 000{currentScore}</div>
+        <div>Макс. очки: 000{maxScore}</div>
       </div>
-      <div className="score">Score: {score}</div>
     </div>
   );
 };
-
-export default Game;
