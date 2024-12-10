@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/DinoGame/static/css/main.3cb3a90c.css",
+    "main.js": "/DinoGame/static/js/main.2a941e2f.js",
+    "index.html": "/DinoGame/index.html",
+    "main.3cb3a90c.css.map": "/DinoGame/static/css/main.3cb3a90c.css.map",
+    "main.2a941e2f.js.map": "/DinoGame/static/js/main.2a941e2f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3cb3a90c.css",
+    "static/js/main.2a941e2f.js"
+  ]
+}
