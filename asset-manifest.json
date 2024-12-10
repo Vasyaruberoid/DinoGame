@@ -1,13 +1,15 @@
 {
   "files": {
-    "main.css": "/DinoGame/static/css/main.3cb3a90c.css",
-    "main.js": "/DinoGame/static/js/main.2a941e2f.js",
+    "main.css": "/DinoGame/static/css/main.4d92ed9e.css",
+    "main.js": "/DinoGame/static/js/main.496881c2.js",
+    "static/media/Jump.png": "/DinoGame/static/media/Jump.73e0342f6a51cde432ab.png",
+    "static/media/dinosaur.png": "/DinoGame/static/media/dinosaur.b208c5482710ae85e0dc.png",
     "index.html": "/DinoGame/index.html",
-    "main.3cb3a90c.css.map": "/DinoGame/static/css/main.3cb3a90c.css.map",
-    "main.2a941e2f.js.map": "/DinoGame/static/js/main.2a941e2f.js.map"
+    "main.4d92ed9e.css.map": "/DinoGame/static/css/main.4d92ed9e.css.map",
+    "main.496881c2.js.map": "/DinoGame/static/js/main.496881c2.js.map"
   },
   "entrypoints": [
-    "static/css/main.3cb3a90c.css",
-    "static/js/main.2a941e2f.js"
+    "static/css/main.4d92ed9e.css",
+    "static/js/main.496881c2.js"
   ]
 }
